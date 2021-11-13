@@ -7,6 +7,7 @@
 # 	Pyton installed and in the path
 #	PyTube installed
 #	FFmpeg installed/copied somewhere
+#   pyMP3.py installed somewhere (I tried to put it inline but it was problematic)
 #
 # Variables:
 # Path to ffmpeg.exe
@@ -15,23 +16,13 @@ $ffmpeg = 'C:\Program Files (x86)\FFmpeg for Audacity\ffmpeg.exe'
 # Temporary path - where the mp4 file gets downloaded to
 $tp = 'D:\Music\'
 
-Clear-Host
-
 # Python script to call that downloads the video's audio
-$pyMP3 = "
-from pytube import YouTube
-import sys
-url = (sys.argv[1])
+$pyMP3 = 'D:\Git\pyMP3\pyMP3.py'
 
-yt = YouTube(url)
-ts = yt.streams.filter(only_audio=True, file_extension='mp4').order_by('abr').desc().first()
-tp = 'D:\\Music\\'
+# Whether to remove the mp4 afterwards
+$delMP4 = $true
 
-fsp = (ts.default_filename)
-ttl = (ts.title)
-ts.download(output_path = tp)
-print(fsp)
-"
+Clear-Host
 
 # Detect USB drives attached. Going to assume there's only ever going to be one
 # If there's more than one the last will be used
@@ -63,7 +54,7 @@ do {
     Write-Output "Downloading: $($url[0])..."
 
     try {
-        $p = python -c $pyMP3 $url
+        $p = python $pyMP3 $url
         # $p
     }
 
@@ -77,11 +68,20 @@ do {
     $args = "-i ""$tp$p"" -b:a 192K -vn ""$dp$q"""
 
     try {
-        Start-Process -FilePath $ffmpeg -ArgumentList $args
+        Start-Process -FilePath $ffmpeg -ArgumentList $args -Wait
     }
     catch {
         Write error $_.Exception.Message
     }
+	
+	if ($delMP4 -eq $true) {
+		try {
+			Remove-Item $tp$p -Force
+		}
+		
+		catch {}		
+	}
+	
 
 Write-output ''
 
