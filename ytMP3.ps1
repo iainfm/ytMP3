@@ -11,13 +11,13 @@
 #
 # Variables:
 # Path to ffmpeg.exe
-$ffmpeg = 'C:\Program Files (x86)\FFmpeg for Audacity\ffmpeg.exe'
+$ffmpeg = 'C:\Path\To\ffmpeg.exe'
 
 # Temporary path - where the mp4 file gets downloaded to
 $tp = 'D:\Music\'
 
 # Python script to call that downloads the video's audio
-$pyMP3 = 'D:\Git\pyMP3\pyMP3.py'
+$pyMP3 = 'D:\Git\ytMP3\pyMP3.py'
 
 # Whether to remove the mp4 afterwards
 $delMP4 = $true
@@ -39,7 +39,7 @@ ForEach ($drive in $drives) {
 # Bale out if no USB device detected
 if ($dp -eq '') {
     write-output 'No USB device detected.'
-    Read-Host ''
+    Write-Host ''
     Exit 0
 }
 
@@ -59,19 +59,19 @@ do {
     }
 
     catch {
-        Write error $_.Exception.Message
+        Write-Error $_.Exception.Message
     }
 
     $q = $p.Replace('.mp4', '.mp3')
 	write-output "Writing:     $q"
 	
-    $args = "-i ""$tp$p"" -b:a 192K -vn ""$dp$q"""
+    $ff_args = "-i ""$tp$p"" -b:a 192K -vn ""$dp$q"""
 
     try {
-        Start-Process -FilePath $ffmpeg -ArgumentList $args -Wait
+        Start-Process -FilePath $ffmpeg -ArgumentList $ff_args -Wait
     }
     catch {
-        Write error $_.Exception.Message
+        Write-Error $_.Exception.Message
     }
 	
 	if ($delMP4 -eq $true) {
