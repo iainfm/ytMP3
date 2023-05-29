@@ -11,7 +11,7 @@
 #
 # Variables:
 # Path to ffmpeg.exe
-$ffmpeg = 'C:\Path\To\ffmpeg.exe'
+$ffmpeg = 'C:\Program Files\ffmpeg\ffmpeg.exe'
 
 # Temporary path - where the mp4 file gets downloaded to
 $tp = 'D:\Music\'
@@ -21,6 +21,9 @@ $pyMP3 = 'D:\Git\ytMP3\pyMP3.py'
 
 # Whether to remove the mp4 afterwards
 $delMP4 = $true
+
+# Whether to automatically overwrite the destination mp3 if it exists
+$ow = '-y' # Set to '-y' for yes, '-n' for no or '' to prompt.
 
 Clear-Host
 
@@ -36,11 +39,11 @@ ForEach ($drive in $drives) {
     }
 }
 
-# Bale out if no USB device detected
+# Save locally if no USB device detected
 if ($dp -eq '') {
-    write-output 'No USB device detected.'
+    write-warning "No USB device detected. Saving to $tp."
     Write-Host ''
-    Exit 0
+    $dp = $tp
 }
 
 # Main loop
@@ -55,7 +58,6 @@ do {
 
     try {
         $p = python $pyMP3 $url
-        # $p
     }
 
     catch {
@@ -65,7 +67,7 @@ do {
     $q = $p.Replace('.mp4', '.mp3')
 	write-output "Writing:     $q"
 	
-    $ff_args = "-i ""$tp$p"" -b:a 192K -vn ""$dp$q"""
+    $ff_args = "$ow -i ""$tp$p"" -b:a 192K -vn ""$dp$q"""
 
     try {
         Start-Process -FilePath $ffmpeg -ArgumentList $ff_args -Wait
