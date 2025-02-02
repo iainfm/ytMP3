@@ -2,15 +2,11 @@
 
 import sys
 from pytubefix import YouTube
-# from pytubefix.cli import on_progress
 
 url = (sys.argv[1])
-yt = YouTube(url) # , on_progress_callback = on_progress)
-
-fsp = (yt.title)
-asciifsp = (fsp.encode(encoding="ascii", errors="ignore")).decode().lstrip().replace(' .', '.')
+yt = YouTube(url)
 
 ys = yt.streams.get_audio_only()
-filename = ys.download(mp3=True, output_path='D:\\Music\\', filename=asciifsp)
+filename = ys.download(output_path='D:\\Music\\')
 
-print(asciifsp + '.mp3')
+print(filename)
